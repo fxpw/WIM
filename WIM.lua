@@ -518,7 +518,6 @@ function TalentsToString(talents, class)
 	local fVal, f = string.match(_G.tostring(talentOrder[3]), "^(%d+)(%d)$");
         local sVal, s = string.match(_G.tostring(talentOrder[2]), "^(%d+)(%d)$");
         local tVal, t = string.match(_G.tostring(talentOrder[1]), "^(%d+)(%d)$");
-
 	if(_G.tonumber(fVal)*.75 <= _G.tonumber(sVal)) then
 		if(_G.tonumber(fVal)*.75 <= _G.tonumber(tVal)) then
 			return L["Hybrid"]..": "..talents;
