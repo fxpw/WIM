@@ -526,7 +526,7 @@ function TalentsToString(talents, class)
 			return classTbl.talent[_G.tonumber(f)].."/"..classTbl.talent[_G.tonumber(s)]..": "..talents;
 		end
 	else
-		return classTbl.talent[_G.tonumber(f)]..": "..talents;
+		return talents and classTbl.talent and classTbl.talent[_G.tonumber(f)] and classTbl.talent[_G.tonumber(f)]..": "..talents or "";
 	end
 end
 
