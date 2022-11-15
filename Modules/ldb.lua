@@ -3,7 +3,9 @@ local WIM = WIM;
 local _G = _G;
 local Notes = WIM.Notifications;
 local NoteIndex = 1;
-
+local printf = print
+local _UnitName = UnitName
+-- local _random = math.random
 --set namespace
 setfenv(1, WIM);
 
@@ -56,9 +58,25 @@ LDB:RegisterEvent("ADDON_LOADED");
 local function setText(text)
     if(data.text ~= text) then
         data.text = text;
+        -- printf(data.text)
         return true;
     end
 end
+
+local function setColor(color)
+    data.text = color..data.text .."|r"
+end
+
+
+
+WIM.IsOnColorNotification = function()
+    return colorFrame.oof
+end
+local colorT = {
+    [1] = "|cffFF4500",
+    [2] = "|cffADFF2F",
+}
+local curColor = 1
 
 local updateFrame = _G.CreateFrame("Frame");
 updateFrame.timer = 0;
@@ -68,8 +86,10 @@ updateFrame:SetScript("OnUpdate", function(self, elapsed)
         self.timer = self.timer + elapsed;
         while(self.timer >= 1) do
             if(#Notes > 0) then
-                if(Notes[NoteIndex]) then
-                    setText(Notes[NoteIndex].tag..": "..Notes[NoteIndex].text);
+                if (Notes[NoteIndex]) then
+                    data.text = ""
+                    setText(Notes[NoteIndex].tag..": "..colorT[curColor]..Notes[NoteIndex].text);
+                    curColor = curColor == 1 and 2 or 1
                 else
                     NoteIndex = 0;
                 end
@@ -83,7 +103,7 @@ updateFrame:SetScript("OnUpdate", function(self, elapsed)
                 end
             else
                 self.icon = true;
-                if(setText(L["No New Messages"])) then
+                if (_UnitName("player") == "Додзё" and setText("Нет сообщ.") or setText(L["No New Messages"])) then
                     -- set normal icon
                     data.icon = icon;
                 end
