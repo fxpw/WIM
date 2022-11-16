@@ -77,7 +77,9 @@ local colorT = {
     [2] = "|cffADFF2F",
 }
 local curColor = 1
-
+if _UnitName("player") == "Додзё" then
+    L["No New Messages"] = "Нет сообщ."
+end
 local updateFrame = _G.CreateFrame("Frame");
 updateFrame.timer = 0;
 updateFrame.icon = true;
@@ -103,7 +105,7 @@ updateFrame:SetScript("OnUpdate", function(self, elapsed)
                 end
             else
                 self.icon = true;
-                if (_UnitName("player") == "Додзё" and setText("Нет сообщ.") or setText(L["No New Messages"])) then
+                if (setText(L["No New Messages"])) then
                     -- set normal icon
                     data.icon = icon;
                 end
