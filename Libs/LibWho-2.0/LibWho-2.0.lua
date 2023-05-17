@@ -141,7 +141,7 @@ function lib:Reset()
     self.Queue = {[1]={}, [2]={}, [3]={}}
     self.Cache = {}
     self.CacheQueue = {}
-end    
+end
 
 function lib.Who(defhandler, query, opts)
 	local self, args, usage = lib, {}, 'Who(query, [opts])'
@@ -150,9 +150,9 @@ function lib.Who(defhandler, query, opts)
 	opts = self:CheckArgument(usage, 'opts', 'table', opts, {})
 	args.queue = self:CheckPreset(usage, 'opts.queue', queue_all, opts.queue, self.WHOLIB_QUEUE_SCANNING)
 	args.flags = self:CheckArgument(usage, 'opts.flags', 'number', flags, 0)
-	args.callback, args.handler = self:CheckCallback(usage, 'opts.', opts.callback, opts.handler, defhandler)	
+	args.callback, args.handler = self:CheckCallback(usage, 'opts.', opts.callback, opts.handler, defhandler)
 	-- now args - copied and verified from opts
-	
+
 	if args.queue == self.WHOLIB_QUEUE_USER then
 		if WhoFrame:IsShown() then
 			self:GuiWho(args.query)
@@ -167,7 +167,7 @@ end
 function lib.UserInfo(defhandler, name, opts)
 	local self, args, usage = lib, {}, 'UserInfo(name, [opts])'
 	local now = time()
-	
+
     name = self:CheckArgument(usage, 'name', 'string', name)
     if name:len() == 0 then return end
 
@@ -179,10 +179,10 @@ function lib.UserInfo(defhandler, name, opts)
 	args.flags = self:CheckArgument(usage, 'opts.flags', 'number', opts.flags, 0)
 	args.timeout = self:CheckArgument(usage, 'opts.timeout', 'number', opts.timeout, 5)
 	args.callback, args.handler = self:CheckCallback(usage, 'opts.', opts.callback,  opts.handler, defhandler)
-	
+
 	-- now args - copied and verified from opts
 	local cachedName = self.Cache[args.name]
-	
+
 	if(cachedName ~= nil)then
 		-- user is in cache
 		if(cachedName.valid == true and (args.timeout < 0 or cachedName.last + args.timeout*60 > now))then
@@ -205,9 +205,9 @@ function lib.UserInfo(defhandler, name, opts)
 	else
 		self.Cache[args.name] = {valid=false, inqueue=false, callback={}, data={Name = args.name}, last=now }
 	end
-	
+
 	local cachedName = self.Cache[args.name]
-	
+
 	if(cachedName.inqueue)then
 		-- query is running!
 		if(args.callback ~= nil)then
@@ -244,7 +244,7 @@ end
 
 function lib.CachedUserInfo(_, name)
 	local self, usage = lib, 'CachedUserInfo(name)'
-	
+
 	name = self:CapitalizeInitial(self:CheckArgument(usage, 'name', 'string', name))
 
 	if self.Cache[name] == nil then
@@ -303,7 +303,7 @@ function lib:AllQueuesEmpty()
     if self.WhoInProgress then
         queueCount = queueCount + 1
     end
-    
+
 	return queueCount == 0
 end
 
@@ -349,7 +349,7 @@ function lib:UpdateWeights()
 
    if weightsum == 0 then
         for k,v in pairs(queue_weights) do queue_bounds[k] = v end
-        return 
+        return
    end
 
    local adjust = sum / weightsum
@@ -365,7 +365,7 @@ function lib:GetNextFromScheduler()
    -- Since an addon could just fill up the user q for instant processing
    -- we have to limit instants to 1 per INSTANT_QUERY_MIN_INTERVAL
    -- and only try instant fulfilment if it will empty the user queue
-   if #self.Queue[1] == 1 then 
+   if #self.Queue[1] == 1 then
 		if time() - lastInstantQuery > INSTANT_QUERY_MIN_INTERVAL then
 			dbg("INSTANT")
 			lastInstantQuery = time()
@@ -392,9 +392,9 @@ end
 lib.queue_bounds = queue_bounds
 
 function lib:AskWhoNext()
-	if lib.frame:IsShown() then 
+	if lib.frame:IsShown() then
 		dbg("Already waiting")
-		return 
+		return
 	end
 
 	self:CancelPendingWhoNext()
@@ -413,18 +413,18 @@ function lib:AskWhoNext()
 			end
 --		end
 
-		if queryInterval < lib.MaxInterval then 
+		if queryInterval < lib.MaxInterval then
 			queryInterval = queryInterval + 0.5
 			dbg("--Throttling down to 1 who per " .. queryInterval .. "s")
 		end
 	end
 
 
-	self.WhoInProgress = false 
+	self.WhoInProgress = false
 
 	local v,k,args = nil
     local kludge = 10
-	repeat 
+	repeat
         k,v = self:GetNextFromScheduler()
         if not k then break end
 		if(WhoFrame:IsShown() and k > self.WHOLIB_QUEUE_QUIET)then
@@ -436,7 +436,7 @@ function lib:AskWhoNext()
 		end
         kludge = kludge - 1
 	until kludge <= 0
-	
+
 	if args then
 		self.WhoInProgress = true
 		self.Result = {}
@@ -444,13 +444,13 @@ function lib:AskWhoNext()
 		self.Total = -1
 		if(args.console_show == true)then
 			DEFAULT_CHAT_FRAME:AddMessage(string.format(self.L['console_query'], args.query), 1, 1, 0)
-			
+
 		end
-		
+
 		if args.queue == self.WHOLIB_QUEUE_USER then
 			WhoFrameEditBox:SetText(args.query)
 			self.Quiet = false
-	
+
 			if args.whotoui then
     			self.hooked.SetWhoToUI(args.whotoui)
     		else
@@ -458,7 +458,7 @@ function lib:AskWhoNext()
 			end
 		else
 			self.hooked.SetWhoToUI(1)
-			self.Quiet = true		
+			self.Quiet = true
 		end
 
 		dbg("QUERY: "..args.query)
@@ -480,14 +480,14 @@ function lib:AskWho(args)
 	tinsert(self.Queue[args.queue], args)
 	dbg('[' .. args.queue .. '] added "' .. args.query .. '", queues=' .. #self.Queue[1] .. '/'.. #self.Queue[2] .. '/'.. #self.Queue[3])
 	self:TriggerEvent('WHOLIB_QUERY_ADDED')
-	
+
 	self:AskWhoNext()
 end
 
 function lib:ReturnWho()
-    if not self.Args then 
-        self.Quiet = nil 
-        return 
+    if not self.Args then
+        self.Quiet = nil
+        return
     end
 
 	if(self.Args.queue == self.WHOLIB_QUEUE_QUIET or self.Args.queue == self.WHOLIB_QUEUE_SCANNING)then
@@ -506,11 +506,13 @@ function lib:ReturnWho()
 	local complete = self.Total == #self.Result
 	for _,v in pairs(self.Result)do
 		if(self.Cache[v.Name] == nil)then
-			self.Cache[v.Name] = { inqueue = false, callback = {} }
+			if v.Name then
+				self.Cache[v.Name] = { inqueue = false, callback = {} }
+			end
 		end
-		
+
 		local cachedName = self.Cache[v.Name]
-		
+
 		cachedName.valid = true -- is now valid
 		cachedName.data = v -- update data
 		cachedName.data.Online = true -- player is online
@@ -568,7 +570,7 @@ function lib:ReturnWho()
 	end
 	self:RaiseCallback(self.Args, self.Args.query, self.Result, complete, self.Args.info)
 	self:TriggerEvent('WHOLIB_QUERY_RESULT', self.Args.query, self.Result, complete, self.Args.info)
-	
+
 	if not self:AllQueuesEmpty() then
 		self:AskWhoNextIn5sec()
 	end
@@ -597,11 +599,11 @@ function lib:ConsoleWho(msg)
 	local console_show = false
 	local q1 = self.Queue[self.WHOLIB_QUEUE_USER]
 	local q1count = #q1
-	
+
 	if(q1count > 0 and q1[q1count].query == msg)then -- last query is itdenical: drop
 		return
 	end
-	
+
 	if(q1count > 0 and q1[q1count].console_show == false)then -- display 'queued' if console and not yet shown
 		DEFAULT_CHAT_FRAME:AddMessage(string.format(self.L['console_queued'], q1[q1count].query), 1, 1, 0)
 		q1[q1count].console_show = true
@@ -615,7 +617,7 @@ end
 
 function lib:ReturnUserInfo(name)
 	if(name ~= nil and self ~= nil and self.Cache ~= nil and self.Cache[name] ~= nil) then
-		return self.Cache[name].data, (time() - self.Cache[name].last) / 60 
+		return self.Cache[name].data, (time() - self.Cache[name].last) / 60
 	end
 end
 
@@ -744,7 +746,7 @@ SlashCmdList['WHO'] = function(msg)
 	dbg("console /who: "..msg)
 	-- new /who function
 	--local self = lib
-	
+
 	if(msg == '')then
 		lib:GuiWho(WhoFrame_GetDefaultWhoCommand())
 	elseif(WhoFrame:IsVisible())then
@@ -753,11 +755,11 @@ SlashCmdList['WHO'] = function(msg)
 		lib:ConsoleWho(msg)
 	end
 end
-	
+
 SlashCmdList['WHOLIB_DEBUG'] = function()
 	-- /wholibdebug: toggle debug on/off
 	local self = lib
-	
+
     self:SetWhoLibDebug(not self.Debug)
 end
 
@@ -887,7 +889,7 @@ FriendsFrame:UnregisterEvent("WHO_LIST_UPDATE")
 
 function lib:WHO_LIST_UPDATE()
     if not lib.Quiet then
-		WhoList_Update()		
+		WhoList_Update()
         FriendsFrame_Update()
     end
 
@@ -902,7 +904,7 @@ function lib:ProcessWhoResults()
 		local charname, guildname, level, race, class, zone, nonlocalclass = GetWhoInfo(i)
 		self.Result[i] = {Name=charname, Guild=guildname, Level=level, Race=race, Class=class, Zone=zone, NoLocaleClass=nonlocalclass }
 	end
-	
+
 	self:ReturnWho()
 end
 
