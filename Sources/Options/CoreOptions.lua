@@ -9,7 +9,6 @@ local pairs = pairs;
 
 --set namespace
 setfenv(1, WIM);
-
 db_defaults.stats = {
     whispers = 0,
     mostConvos = 0,

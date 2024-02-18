@@ -505,46 +505,47 @@ function lib:ReturnWho()
 	local now = time()
 	local complete = self.Total == #self.Result
 	for _,v in pairs(self.Result)do
-		if(self.Cache[v.Name] == nil)then
-			if v.Name then
-				self.Cache[v.Name] = { inqueue = false, callback = {} }
-			end
+		if (v.Name and self.Cache[v.Name] == nil)then
+			-- if v.Name then
+			self.Cache[v.Name] = { inqueue = false, callback = {} }
+			-- end
 		end
 
 		local cachedName = self.Cache[v.Name]
-
-		cachedName.valid = true -- is now valid
-		cachedName.data = v -- update data
-		cachedName.data.Online = true -- player is online
-		cachedName.last = now -- update timestamp
-		if(cachedName.inqueue)then
-			if(self.Args.info and self.CacheQueue[self.Args.query] == v.Name)then
-				-- found by the query which was created to -> remove us from query
-				self.CacheQueue[self.Args.query] = nil
-			else
-				-- found by another query
-				for k2,v2 in pairs(self.CacheQueue) do
-					if(v2 == v.Name)then
-						for i=self.WHOLIB_QUEUE_QUIET, self.WHOLIB_QUEUE_SCANNING do
-							for k3,v3 in pairs(self.Queue[i]) do
-								if(v3.query == k2 and v3.info)then
-									-- remove the query which was generated for this user, cause another query was faster...
-									dbg("Found '"..v.Name.."' early via query '"..self.Args.query.."'")
-									table.remove(self.Queue[i], k3)
-									self.CacheQueue[k2] = nil
+		if cachedName then
+			cachedName.valid = true -- is now valid
+			cachedName.data = v -- update data
+			cachedName.data.Online = true -- player is online
+			cachedName.last = now -- update timestamp
+			if(cachedName.inqueue)then
+				if(self.Args.info and self.CacheQueue[self.Args.query] == v.Name)then
+					-- found by the query which was created to -> remove us from query
+					self.CacheQueue[self.Args.query] = nil
+				else
+					-- found by another query
+					for k2,v2 in pairs(self.CacheQueue) do
+						if(v2 == v.Name)then
+							for i=self.WHOLIB_QUEUE_QUIET, self.WHOLIB_QUEUE_SCANNING do
+								for k3,v3 in pairs(self.Queue[i]) do
+									if(v3.query == k2 and v3.info)then
+										-- remove the query which was generated for this user, cause another query was faster...
+										dbg("Found '"..v.Name.."' early via query '"..self.Args.query.."'")
+										table.remove(self.Queue[i], k3)
+										self.CacheQueue[k2] = nil
+									end
 								end
 							end
 						end
 					end
 				end
+				dbg('Info(' .. v.Name ..') returned: on')
+				for _,v2 in pairs(cachedName.callback) do
+					self:RaiseCallback(v2, self:ReturnUserInfo(v.Name))
+				end
+				cachedName.callback = {}
 			end
-			dbg('Info(' .. v.Name ..') returned: on')
-			for _,v2 in pairs(cachedName.callback) do
-				self:RaiseCallback(v2, self:ReturnUserInfo(v.Name))
-			end
-			cachedName.callback = {}
+			cachedName.inqueue = false -- query is done
 		end
-		cachedName.inqueue = false -- query is done
 	end
 	if(self.Args.info and self.CacheQueue[self.Args.query])then
 		-- the query did not deliver the result => not online!
